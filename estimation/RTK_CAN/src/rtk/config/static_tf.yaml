@@ -1,0 +1,8 @@
+#base_link to rs_lidar
+base_link_to_rslidar:
+  x : 2
+  y : 2
+  z : 2
+  yaw : 2
+  pitch : 2
+  roll : 2

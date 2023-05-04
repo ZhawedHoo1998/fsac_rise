@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="rtk" type="rtk_node"  name="rtk_node" output="screen" respawn='false'/>
+    <rosparam command="load" file="$(find rtk)/config/static_tf.yaml" />
+    <node pkg='tf2_ros' type='static_transform_publisher' name='base_link_to_lidar' args='0.87 0 1.5 0 0 0 base_link rslidar'/>
+    <node pkg='tf2_ros' type='static_transform_publisher' name='base_link_to_camera' args='0.415 0 3 0 0 0 base_link camera'/>
+    <node pkg='tf2_ros' type='static_transform_publisher' name='base_link_to_imu' args='0.3 0 1.5 0 0 0 base_link imu'/>
+    <node pkg='tf2_ros' type='static_transform_publisher' name='base_link_to_odom' args='0.3 0 1.5 0 0 0 odom base_link'/>
+</launch>

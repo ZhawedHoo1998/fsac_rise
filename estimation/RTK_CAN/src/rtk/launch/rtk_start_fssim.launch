@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="rtk" type="rtk_node"  name="rtk_node" output="screen" respawn='false'/>
+</launch>
