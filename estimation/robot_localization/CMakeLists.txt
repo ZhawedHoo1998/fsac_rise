@@ -24,7 +24,10 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf2_geometry_msgs
   tf2_ros
-  xmlrpcpp)
+  xmlrpcpp
+  fsd_common_msgs
+  tf
+  )
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP yaml-cpp)

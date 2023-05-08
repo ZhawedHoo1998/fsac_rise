@@ -43,6 +43,10 @@
 #include <utility>
 #include <vector>
 #include <limits>
+#include <Eigen/Dense>
+
+
+
 namespace RobotLocalization
 {
   template<typename T>
@@ -137,6 +141,9 @@ namespace RobotLocalization
 
     // Publisher
     positionPub_ = nh_.advertise<nav_msgs::Odometry>("odometry/filtered", 20);
+    
+    //修改2：新增发布器
+    fsd_positionPub_ = nh_.advertise<fsd_common_msgs::CarState>("/estimation/slam/state", 20);
 
     // Optional acceleration publisher
     if (publishAcceleration_)
@@ -1969,6 +1976,31 @@ namespace RobotLocalization
 
       // Fire off the position and the transform
       positionPub_.publish(filteredPosition);
+
+      //修改1：将planning所需的消息发布出来
+      fsd_common_msgs::CarState fsd_msgs;
+      fsd_msgs.header = filteredPosition.header;
+      fsd_msgs.car_state.x = filteredPosition.pose.pose.position.x;
+      fsd_msgs.car_state.y = filteredPosition.pose.pose.position.y;
+      //将四元数转化为弧度
+        // 将四元数转换为欧拉角
+      double w, x, y, z;
+      w = filteredPosition.pose.pose.orientation.w;
+      x = filteredPosition.pose.pose.orientation.x;
+      y = filteredPosition.pose.pose.orientation.y;
+      z = filteredPosition.pose.pose.orientation.z;
+
+      Eigen::Quaterniond q(w, x, y, z); 
+      Eigen::Vector3d euler_angles = q.toRotationMatrix().eulerAngles(0, 1, 2);
+        // 将弧度转换为角度
+      double yaw = euler_angles[2] * 180.0 / M_PI;
+      fsd_msgs.car_state.theta = yaw;
+      
+      fsd_msgs.car_state_dt.header =  filteredPosition.header;
+      fsd_msgs.car_state_dt.car_state_dt.x = filteredPosition.twist.twist.linear.x;
+      fsd_msgs.car_state_dt.car_state_dt.y = filteredPosition.twist.twist.linear.y;
+
+      fsd_positionPub_.publish(fsd_msgs);
 
       if (printDiagnostics_)
       {

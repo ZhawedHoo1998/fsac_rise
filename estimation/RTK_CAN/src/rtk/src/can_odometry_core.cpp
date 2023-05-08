@@ -46,7 +46,7 @@ void CanOdometryNode::initForROS()
   v_info_.is_stored = true;
 
   // setup subscriber
-  sub1_ = nh_.subscribe("/ctrl_fb", 10, &CanOdometryNode::callbackFromVehicleStatus, this);
+  sub1_ = nh_.subscribe("/Vehicle_status", 10, &CanOdometryNode::callbackFromVehicleStatus, this);
 
   // setup publisher
   pub1_ = nh_.advertise<nav_msgs::Odometry>("/vehicle/odom", 10);
@@ -57,7 +57,7 @@ void CanOdometryNode::run()
   ros::spin();
 }
 
-void CanOdometryNode::publishOdometry(const yhs_can_msgs::ctrl_fbConstPtr& msg)
+void CanOdometryNode::publishOdometry(const yhs_can_msgs::vehicle_statusConstPtr& msg)
 {
   float vx = msg->ctrl_fb_velocity ; // 速度转换 单位
   // std::cout << "vx = " << vx << std::endl; 
@@ -109,7 +109,7 @@ void CanOdometryNode::publishOdometry(const yhs_can_msgs::ctrl_fbConstPtr& msg)
 
 }
 
-void CanOdometryNode::callbackFromVehicleStatus(const yhs_can_msgs::ctrl_fbConstPtr& msg)
+void CanOdometryNode::callbackFromVehicleStatus(const yhs_can_msgs::vehicle_statusConstPtr& msg)
 {
   publishOdometry(msg);
 }

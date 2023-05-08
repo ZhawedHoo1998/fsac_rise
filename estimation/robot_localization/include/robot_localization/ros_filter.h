@@ -54,6 +54,9 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/message_filter.h>
 #include <tf2/LinearMath/Transform.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf/transform_datatypes.h>
 #include <message_filters/subscriber.h>
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <diagnostic_updater/publisher.h>
@@ -70,6 +73,10 @@
 #include <string>
 #include <vector>
 #include <deque>
+
+
+//修改 新增消息类型
+#include "fsd_common_msgs/CarState.h"
 
 namespace RobotLocalization
 {
@@ -676,6 +683,9 @@ template<class T> class RosFilter
     //! @brief position publisher
     //!
     ros::Publisher positionPub_;
+
+    //! @brief fsd position publisher  修改
+    ros::Publisher fsd_positionPub_;
 
     //! @brief Subscribes to the control input topic
     //!

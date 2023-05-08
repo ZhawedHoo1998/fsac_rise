@@ -1,2 +1,0 @@
-uint16 WeekTime
-uint32 GpsTime

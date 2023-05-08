@@ -38,8 +38,8 @@ void LineDetector::runAlgorithm() {
 // 路径计算函数
 void LineDetector::createPath() {
     if(local_map.cone_red.size() == 0 || local_map.cone_blue.size() == 0 )
-        std::cout<<"test_1"<<std::endl;
-        return;     //这里的判断应该用或吧 ??,黄色锥桶在这里不用做判断吧？？
+    {   //std::cout<<"test_1"<<std::endl;
+        return;  }   //这里的判断应该用或吧 ??,黄色锥桶在这里不用做判断吧？？
     
     //对红色锥桶进行直线拟合
     int n_red = local_map.cone_red.size();  
@@ -96,7 +96,7 @@ void LineDetector::createPath() {
         }
     }
     
-    std::cout<<"test_2"<<std::endl;
+    //std::cout<<"test_2"<<std::endl;
 
 
     float y_red = k_red * path_length + b_red;   // 计算红色锥桶一边终点处的横坐标

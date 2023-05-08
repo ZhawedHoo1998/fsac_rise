@@ -45,8 +45,9 @@
 #include <linux/can/raw.h>
 
 
-#include "rtk_msgs/vehicle_status.h"
-#include "yhs_can_msgs/ctrl_fb.h"
+
+#include "yhs_can_msgs/vehicle_status.h"
+
 
 
 #include <ros/time.h>
@@ -121,13 +122,13 @@ private:
   Odometry odom_;
 
   // callbacks
-  void callbackFromVehicleStatus(const yhs_can_msgs::ctrl_fbConstPtr& msg);
+  void callbackFromVehicleStatus(const yhs_can_msgs::vehicle_statusConstPtr& msg);
 
   // initializer
   void initForROS();
 
   // functions
-  void publishOdometry(const yhs_can_msgs::ctrl_fbConstPtr& msg);
+  void publishOdometry(const yhs_can_msgs::vehicle_statusConstPtr& msg);
 
 
 };
