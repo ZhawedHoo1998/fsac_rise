@@ -13,7 +13,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge , CvBridgeError
 from ctypes import *
 
-sys.path.append("/opt/MVS/Samples/64/Python/MvImport")
+sys.path.append("/opt/MVS/Samples/aarch64/Python/MvImport")
 from MvCameraControl_class import *
 
 g_bExit = False

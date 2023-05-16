@@ -11,7 +11,7 @@ from PIL import Image as imim
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge,CvBridgeError
 
-sys.path.append('/home/advan/yhs_ws/perception/src/yolov4_tiny_track')
+sys.path.append('/home/xavier/fsac_rise/src/fsac_rise/perception/yolov4_tiny_track')
 
 from yolo import YOLO
 from sort import *

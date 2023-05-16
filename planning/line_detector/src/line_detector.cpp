@@ -48,10 +48,12 @@ void LineDetector::createPath() {
     for(int i=0; i < n_red; i++){
 
         X_RED(i, 0) = local_map.cone_red[i].position.x;
-        X_RED(i, 0) = 1.0;
+        X_RED(i, 1) = 1.0;  //赋值错误
         Y_RED(i) = local_map.cone_red[i].position.y;
     }
-    Eigen::Vector2f params_red = (X_RED.transpose() * X_RED).inverse() * X_RED.transpose() * Y_RED;
+
+    Eigen::Map<Eigen::VectorXf> y(Y_RED.data(), Y_RED.size());
+    Eigen::Vector2f params_red = (X_RED.transpose() * X_RED).inverse() * X_RED.transpose() * y;
     float k_red = params_red(0);
     float b_red = params_red(1);
 
@@ -62,7 +64,7 @@ void LineDetector::createPath() {
     for(int i=0; i < n_blue; i++){
 
         X_BLUE(i, 0) = local_map.cone_blue[i].position.x;
-        X_BLUE(i, 0) = 1.0;
+        X_BLUE(i, 1) = 1.0;   // 赋值错误
         Y_BLUE(i) = local_map.cone_blue[i].position.y;
     }
     Eigen::Vector2f params_blue = (X_BLUE.transpose() * X_BLUE).inverse() * X_BLUE.transpose() * Y_BLUE;
@@ -103,7 +105,17 @@ void LineDetector::createPath() {
     float y_blue  = k_blue * path_length + b_blue;  // 计算蓝色锥桶一边终点处的横坐标
 
     end_point.x = path_length;
-    end_point.y = (y_red + y_blue)/2;       //终点的横纵坐标
+
+    // std::cout<<"end_point.y:"<<end_point.y<<std::endl;
+    // std::cout<<"y_red:"<<y_red<<std::endl;
+    // std::cout<<"y_blue:"<<y_blue<<std::endl;
+    // std::cout<<"path_length:"<<path_length<<std::endl;
+    // std::cout<<"X_RED:"<<X_RED<<std::endl;
+    // std::cout<<"k_red:"<<params_red(0)<<std::endl;
+    // std::cout<< "X_RED = \n" << X_RED << std::endl;
+    // std::cout<< "Y_RED = \n" << Y_RED << std::endl;
+
+    end_point.y = (y_red + y_blue) * 0.5;       //终点的横纵坐标
 
 }
 
