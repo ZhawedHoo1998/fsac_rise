@@ -49,8 +49,8 @@ def callback(data):
 	##时间数据
 	image_header_ = data.header
 	result_publish_(res, image_header_, color)
-	# cv2.imshow("video",frame)
-	# cv2.waitKey(3)
+	cv2.imshow("video",frame)
+	cv2.waitKey(3)
 
 
 	

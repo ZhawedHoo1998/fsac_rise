@@ -17,8 +17,13 @@ namespace ns_path_generator {
             tmp.action = visualization_msgs::Marker::ADD;
             tmp.type = visualization_msgs::Marker::LINE_STRIP;
             tmp.scale.x = 0.4;
+            ROS_INFO_STREAM("test_4");
             if (is_vel)
+            {   
+                ROS_INFO_STREAM("test_5");
                 color_map(traj[i].velocity, color_tmp);
+                ROS_INFO_STREAM("test_6");
+            }
             else
                 color_tmp = color;
             tmp.color.r = color_tmp[0];
@@ -33,15 +38,17 @@ namespace ns_path_generator {
             p.y = traj[i + 1].pts.y;
             tmp.points.push_back(p);
             visual.markers.push_back(tmp);
+            ROS_INFO_STREAM("test_7");
         }
     }
     void color_map(double vel, std::vector<float> &color) {
     /**
      * Change the color of each point in the trajectory according to the velocity
      */
-
+        ROS_INFO_STREAM("test_7");
         double temp = (vel - param_.initial_velocity) /
                       (param_.desire_vel - param_.initial_velocity);
+        ROS_INFO_STREAM("test_8");
         if (temp > 1)
             temp = 1;
         if (temp < 0)

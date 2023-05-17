@@ -48,7 +48,7 @@ void LineDetector::createPath() {
     for(int i=0; i < n_red; i++){
 
         X_RED(i, 0) = local_map.cone_red[i].position.x;
-        X_RED(i, 0) = 1.0;
+        X_RED(i, 1) = 1.0;
         Y_RED(i) = local_map.cone_red[i].position.y;
     }
     Eigen::Vector2f params_red = (X_RED.transpose() * X_RED).inverse() * X_RED.transpose() * Y_RED;
@@ -62,7 +62,7 @@ void LineDetector::createPath() {
     for(int i=0; i < n_blue; i++){
 
         X_BLUE(i, 0) = local_map.cone_blue[i].position.x;
-        X_BLUE(i, 0) = 1.0;
+        X_BLUE(i, 1) = 1.0;
         Y_BLUE(i) = local_map.cone_blue[i].position.y;
     }
     Eigen::Vector2f params_blue = (X_BLUE.transpose() * X_BLUE).inverse() * X_BLUE.transpose() * Y_BLUE;

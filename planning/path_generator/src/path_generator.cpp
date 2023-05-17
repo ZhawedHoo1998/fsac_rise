@@ -73,11 +73,15 @@ namespace ns_path_generator {
         setTrack();
         ROS_INFO_STREAM("set Track Done.");
         track_->setState(VehicleState(car_state_, cmd_));
+        ROS_INFO_STREAM("test_1");
         track_->CalculateTraj(refline_);
+        ROS_INFO_STREAM("test_2");
 
         std::vector<float> color = {1, 0, 0};
+        ROS_INFO_STREAM("test_final");
         visual_trajectory(refline_, RefPath_, "/base_link", color,
                           car_state_.header, true);
+        ROS_INFO_STREAM("test_3");
 
     }
 
