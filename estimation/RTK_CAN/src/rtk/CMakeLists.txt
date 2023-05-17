@@ -6,7 +6,6 @@ project(rtk)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
-  rtk_msgs
   yhs_can_msgs
   image_transport
   message_filters

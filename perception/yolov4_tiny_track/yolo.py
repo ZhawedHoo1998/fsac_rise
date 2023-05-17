@@ -41,13 +41,13 @@ class YOLO(object):
         #   验证集损失较低不代表mAP较高，仅代表该权值在验证集上泛化性能较好。
         #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
         #--------------------------------------------------------------------------#
-        "model_path"        : '/home/advan/yhs_ws/perception/src/yolov4_tiny_track/model_data/best.pth',
-        "classes_path"      : '/home/advan/yhs_ws/perception/src/yolov4_tiny_track/model_data/voc_classes.txt',
+        "model_path"        : '/home/xavier/fsac_rise/src/fsac_rise/perception/yolov4_tiny_track/model_data/best.pth',
+        "classes_path"      : '/home/xavier/fsac_rise/src/fsac_rise/perception/yolov4_tiny_track/model_data/voc_classes.txt',
         #---------------------------------------------------------------------#
         #   anchors_path代表先验框对应的txt文件，一般不修改。
         #   anchors_mask用于帮助代码找到对应的先验框，一般不修改。
         #---------------------------------------------------------------------#
-        "anchors_path"      : '/home/advan/yhs_ws/perception/src/yolov4_tiny_track/model_data/yolo_anchors.txt',
+        "anchors_path"      : '/home/xavier/fsac_rise/src/fsac_rise/perception/yolov4_tiny_track/model_data/yolo_anchors.txt',
         "anchors_mask"      : [[3,4,5], [1,2,3]],
         #-------------------------------#
         #   所使用的注意力机制的类型
@@ -359,7 +359,7 @@ class YOLO(object):
         output_layer_names  = ["output"]
         
         # Export the model
-        print(f'Starting export with onnx {onnx.__version__}')
+        print('Starting export with onnx {}'.format(onnx.__version__))
         torch.onnx.export(self.net,
                         im,
                         f               = model_path,
@@ -378,7 +378,7 @@ class YOLO(object):
         # Simplify onnx
         if simplify:
             import onnxsim
-            print(f'Simplifying with onnx-simplifier {onnxsim.__version__}.')
+            print('Simplifying with onnx-simplifier {}.'.format(onnxsim.__version__))
             model_onnx, check = onnxsim.simplify(
                 model_onnx,
                 dynamic_input_shape=False,
