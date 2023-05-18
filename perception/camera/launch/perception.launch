@@ -1,0 +1,14 @@
+<launch>
+    <!-- 海康相机节点启动 -->
+    <!-- <node name="camera_left" pkg="camera" type="hikrobot_camera_left.py" output="screen">
+    </node>
+    <node name="camera_right" pkg="camera" type="hikrobot_camera_right.py" output="screen">
+    </node> -->
+    <!-- 相机节点参数 -->
+    <rosparam file="$(find camera)/config/detection.yaml" command="load" ns="/" />
+
+    <!-- 检测节点 -->
+    <node name="detection" pkg="camera" type="multi_camera_detection.py" output="screen">
+    </node>
+</launch>
+

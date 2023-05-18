@@ -64,11 +64,7 @@ void LineDetector::createPath() {
     for(int i=0; i < n_blue; i++){
 
         X_BLUE(i, 0) = local_map.cone_blue[i].position.x;
-<<<<<<< HEAD
         X_BLUE(i, 1) = 1.0;
-=======
-        X_BLUE(i, 1) = 1.0;   // 赋值错误
->>>>>>> advan
         Y_BLUE(i) = local_map.cone_blue[i].position.y;
     }
     Eigen::Vector2f params_blue = (X_BLUE.transpose() * X_BLUE).inverse() * X_BLUE.transpose() * Y_BLUE;

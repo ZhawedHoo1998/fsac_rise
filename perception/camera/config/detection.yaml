@@ -1,0 +1,11 @@
+# camera_topic 相机订阅的话题信息
+camera_left_topic: /camera/image_color_left
+camera_right_topic: /image_view/image_raw
+# 外参 左相机
+# 内参 左相机
+# frame_ID
+frame_id: camera
+# 检测发布的话题名称
+detection_result: /local_map
+# 检测可视化话题名称：
+visualization: /visualization_marker_array
