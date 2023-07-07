@@ -26,7 +26,7 @@ path = os.path.join(current_dir, relative_path)
 sys.path.append(path)
 
 
-from yolo import YOLO
+from yolo import YOLO_ONNX
 from sort import *
 
 ##自定义消息类型导入
@@ -97,7 +97,7 @@ def main():
 	# sort跟踪器
 	mot_tracker = Sort()
 	# 检测器
-	yolo = YOLO()
+	yolo = YOLO_ONNX()
 	# 新建节点
 	rospy.init_node('image_processing',anonymous=True)
 	# 读取参数库中的参数

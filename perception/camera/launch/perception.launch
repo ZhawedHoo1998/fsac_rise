@@ -7,8 +7,6 @@
     <!-- 相机节点参数 -->
     <rosparam file="$(find camera)/config/detection.yaml" command="load" ns="/" />
 
-    <!-- 检测节点 -->
-    <node name="detection" pkg="camera" type="multi_camera_detection.py" output="screen">
-    </node>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_publisher" args="0 0 0 0 0 0 /camera /base_link"/>
 </launch>
 

@@ -1,6 +1,6 @@
 # camera_topic 相机订阅的话题信息
 camera_left_topic: /camera/image_color_left
-camera_right_topic: /image_view/image_raw
+camera_right_topic: /camera/image_color_right
 # 外参 左相机
 # 内参 左相机
 # frame_ID

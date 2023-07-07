@@ -455,13 +455,13 @@ class YOLO_ONNX(object):
         #   验证集损失较低不代表mAP较高，仅代表该权值在验证集上泛化性能较好。
         #   如果出现shape不匹配，同时要注意训练时的onnx_path和classes_path参数的修改
         #--------------------------------------------------------------------------#
-        "onnx_path"         : 'model_data/models.onnx',
-        "classes_path"      : 'model_data/coco_classes.txt',
+        "onnx_path"         : '/home/rise/fsac/src/fsac_rise/perception/camera/src/yolov4_tiny_track/model_data/models.onnx',
+        "classes_path"      : "/home/rise/fsac/src/fsac_rise/perception/camera/src/yolov4_tiny_track/model_data/coco_classes.txt",
         #---------------------------------------------------------------------#
         #   anchors_path代表先验框对应的txt文件，一般不修改。
         #   anchors_mask用于帮助代码找到对应的先验框，一般不修改。
         #---------------------------------------------------------------------#
-        "anchors_path"      : 'model_data/yolo_anchors.txt',
+        "anchors_path"      : '/home/rise/fsac/src/fsac_rise/perception/camera/src/yolov4_tiny_track/model_data/yolo_anchors.txt',
         "anchors_mask"      : [[3, 4, 5], [1, 2, 3]],
         #---------------------------------------------------------------------#
         #   输入图片的大小，必须为32的倍数。
@@ -498,8 +498,12 @@ class YOLO_ONNX(object):
             setattr(self, name, value)
             self._defaults[name] = value 
             
-        import onnxruntime
-        self.onnx_session   = onnxruntime.InferenceSession(self.onnx_path)
+        import onnxruntime as ort
+        # # self.onnx_session   = onnxruntime.InferenceSession(self.onnx_path, session_options=session_options)
+        self.onnx_session = ort.InferenceSession(self.onnx_path, providers=['CUDAExecutionProvider'])
+       
+
+
         # 获得所有的输入node
         self.input_name     = self.get_input_name()
         # 获得所有的输出node
