@@ -10,16 +10,16 @@
 #include "nav_msgs/Odometry.h"
 #include "sensor_msgs/Imu.h"
 #include "geometry_msgs/Twist.h"
-#include "yhs_can_msgs/ctrl_cmd.h"
-#include "yhs_can_msgs/io_cmd.h"
-#include "yhs_can_msgs/ctrl_fb.h"
-#include "yhs_can_msgs/lr_wheel_fb.h"
-#include "yhs_can_msgs/rr_wheel_fb.h"
-#include "yhs_can_msgs/io_fb.h"
-#include "yhs_can_msgs/odo_fb.h"
+// #include "yhs_can_msgs/ctrl_cmd.h"
+// #include "yhs_can_msgs/io_cmd.h"
+// #include "yhs_can_msgs/ctrl_fb.h"
+// #include "yhs_can_msgs/lr_wheel_fb.h"
+// #include "yhs_can_msgs/rr_wheel_fb.h"
+// #include "yhs_can_msgs/io_fb.h"
+// #include "yhs_can_msgs/odo_fb.h"
 
 
-#include "yhs_can_msgs/vehicle_status.h" //111
+// #include "yhs_can_msgs/vehicle_status.h" //111
 #include "sensor_msgs/NavSatFix.h"
 
 #include <net/if.h>
@@ -36,7 +36,7 @@
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
-
+#include "autoware_msgs/VehicleCmd.h"
 
 namespace yhs_tool {
 class CanControl
@@ -53,14 +53,12 @@ private:
 	//publishing IMU gps vehicle_status
 
 
-	ros::Publisher vehicle_status_pub_;
+	// ros::Publisher vehicle_status_pub_;
 	ros::Publisher autoware_status_pub_;
 	ros::Publisher IMU_pub_;
 	ros::Publisher GPS_pub_;
 
 
-	ros::Subscriber ctrl_cmd_sub_;
-	ros::Subscriber io_cmd_sub_;
 	ros::Subscriber autoware_cmd_sub_; 
 
 	boost::mutex cmd_mutex_;
@@ -73,9 +71,8 @@ private:
 	can_frame recv_frames_[1];
 
 
-	void io_cmdCallBack(const yhs_can_msgs::io_cmd msg);
-	void ctrl_cmdCallBack(const yhs_can_msgs::ctrl_cmd msg);
-	void autoware_ctrl_cmdCallBack(const geometry_msgs::TwistStamped msg);
+
+	void autoware_ctrl_cmdCallBack(const autoware_msgs::VehicleCmd& msg);
 
 	void recvData();
 	void sendData();

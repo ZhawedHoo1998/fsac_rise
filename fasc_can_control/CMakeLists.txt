@@ -8,10 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
-  yhs_can_msgs
+  # yhs_can_msgs
   sensor_msgs
   tf2
   tf2_ros
+  autoware_msgs
 )
 
 ## Generate added messages and services with any dependencies listed here
@@ -33,18 +34,13 @@ catkin_package(
 ###########
 
 link_directories(
-　 include
   include/yhs_can_control
   ${catkin_INCLUDE_DIRS} yhs_can_control
 )
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
- 　include
-  include/yhs_can_control
-  ${catkin_INCLUDE_DIRS} yhs_can_control
-)
+include_directories(include include/yhs_can_control ${catkin_INCLUDE_DIRS} yhs_can_control)
 
 add_executable(${PROJECT_NAME}_node src/yhs_can_control.cpp)
 

@@ -1,6 +1,7 @@
 #include "Utils/visual.h"
 
 namespace ns_control {
+// 用于将轨迹 traj 可视化为线条并添加到 MarkerArray visual 中
 void visual_trajectory(const Trajectory &traj,
                        visualization_msgs::MarkerArray &visual,
                        const std::string &frame,
@@ -35,6 +36,7 @@ void visual_trajectory(const Trajectory &traj,
   }
 }
 
+// 将输入的速度值 vel 转换为一个颜色向量，存储在 color 中返回
 void color_map(double vel, std::vector<float> &color) {
   double temp = (vel - control_param_.initial_velocity) /
                 (control_param_.desire_vel - control_param_.initial_velocity);
@@ -52,6 +54,7 @@ void color_map(double vel, std::vector<float> &color) {
 void visual_map(const fsd_common_msgs::Map &map,
                 visualization_msgs::MarkerArray &visual) {
   visual.markers.clear();
+  // 将地图中的红锥标记可视化为点并添加到 MarkerArray visual 中
   for (size_t i = 0; i < map.cone_red.size(); i++) {
     visualization_msgs::Marker tmp;
     tmp.header.frame_id = "/map";
@@ -74,6 +77,7 @@ void visual_map(const fsd_common_msgs::Map &map,
     visual.markers.push_back(tmp);
   }
 
+  // 将地图中的蓝锥标记可视化为点并添加到 MarkerArray visual 中
   for (size_t i = 0; i < map.cone_blue.size(); i++) {
     visualization_msgs::Marker tmp;
     tmp.header.frame_id = "/map";

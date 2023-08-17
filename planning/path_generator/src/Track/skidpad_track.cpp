@@ -24,6 +24,7 @@ Param param_;
 
 namespace ns_path_generator {
 
+// 生成八字轨迹，
 bool Skidpad_Track::genTraj() {
 
   // The front side to the gravity point
@@ -72,7 +73,7 @@ bool Skidpad_Track::genTraj() {
     trajectory_.push_back(tmp_pt);
   }
 
-  // Transform the trajectory
+  // Transform the trajectory 坐标系转换
   for (size_t i = 0; i < trajectory_.size(); i++) {
     double temp_x, temp_y;
     temp_x = trajectory_[i].pts.x;
@@ -86,6 +87,7 @@ bool Skidpad_Track::genTraj() {
   return true;
 }
 
+// 计算路径参考线并储存
 bool Skidpad_Track::CalculateTraj(Trajectory &refline) {
 
   if (trajectory_.empty()) {
@@ -144,6 +146,7 @@ bool Skidpad_Track::CalculateTraj(Trajectory &refline) {
     temp_x = delta_x * cos(psi) + delta_y * sin(psi);
     temp_y = delta_y * cos(psi) - delta_x * sin(psi);
 
+    // 轨迹曲率、点的位置、航向角、速度信息
     tmp.curvature = fabs(trajectory_[next].curvature);
     tmp.pts = cv::Point2f(temp_x, temp_y);
     tmp.yaw = delta_yaw;

@@ -22,6 +22,7 @@
 
 namespace ns_path_generator {
 
+    // 生成直线轨迹
     bool Line_Track::genTraj() {
         const double interval = param_.interval;
         const double desire_vel = param_.desire_vel;
@@ -47,6 +48,7 @@ namespace ns_path_generator {
         return true;
     }
 
+    // 计算参考线轨迹，并储存
     bool Line_Track::CalculateTraj(Trajectory &refline) {
 
         if (trajectory_.empty()) {

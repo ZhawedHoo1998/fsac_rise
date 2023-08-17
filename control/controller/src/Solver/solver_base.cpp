@@ -23,18 +23,23 @@
 
 namespace ns_control {
 
+// 获取类成员变量 predictive_path
 Trajectory Solver::getTrajectory() { return predictive_path; }
 
+// 设置类成员变量 trajectory_ 的值，该变量表示机器人的路径轨迹
 void Solver::setTrajectory(const Trajectory &trajectory) {
   ROS_INFO_STREAM("set solver trajectory");
   trajectory_ = trajectory;
 }
 
+// 设置类成员变量 state_ 的值，该变量表示车辆的状态
 void Solver::setState(const VehicleState &state) { 
   ROS_INFO_STREAM("set state");
   state_ = state; 
-  ROS_INFO_STREAM("finish set state");}
+  ROS_INFO_STREAM("finish set state");
+}
 
+// 获取类成员变量 control_command_，并将其作为返回值返回
 fsd_common_msgs::ControlCommand Solver::getCmd() {
   return control_command_;
 }

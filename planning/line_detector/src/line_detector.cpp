@@ -35,7 +35,7 @@ void LineDetector::runAlgorithm() {
         return;
 }
 
-// 路径计算函数
+// 路径计算函数，核心函数
 void LineDetector::createPath() {
     if(local_map.cone_red.size() == 0 || local_map.cone_blue.size() == 0 )
     {   //std::cout<<"test_1"<<std::endl;

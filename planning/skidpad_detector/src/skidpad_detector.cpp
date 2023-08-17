@@ -22,7 +22,7 @@
 #include <sstream>
 
 namespace ns_skidpad_detector {
-// Constructor
+// Constructor 初始化
 SkidpadDetector::SkidpadDetector(ros::NodeHandle &nh) : nh_(nh) {
   getClusterFlag = false;
   matchFlag = false;
@@ -40,11 +40,12 @@ std_msgs::Float64MultiArray SkidpadDetector::getTransMatrix() {
   return trans_matrix_in_1D;
 }
 
-// Setters
+// Setters设置点云聚类数据
 void SkidpadDetector::setclusterFiltered(sensor_msgs::PointCloud msg) {
   getClusterFlag = true;
   cluster = msg;
 }
+// 加载参数
 void SkidpadDetector::loadParameters() {
   ROS_INFO("loading parameters");
   if (!nh_.param<std::string>("path/skidpad_map",
@@ -78,6 +79,7 @@ void SkidpadDetector::loadParameters() {
   }
 }
 
+// 加载文件并将数据保存到类的成员变量中
 void SkidpadDetector::loadFiles() {
   /* load pcd skidpad map */
   pcl::PointCloud<pcl::PointXYZ> source_cloud;
@@ -111,10 +113,12 @@ void SkidpadDetector::loadFiles() {
 	infile_y.close();
 }
 
+// 运行算法以匹配点云并执行ICP（迭代最近点）算法
 void SkidpadDetector::runAlgorithm() {
   if(!getClusterFlag || matchFlag)
     return;
 
+  // 定义一些指针，分别表示目标点云、源点云、icp算法匹配结果、源点云中的一个点、目标点云中的一个点
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_out (new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::PointCloud<pcl::PointXYZ> Final;

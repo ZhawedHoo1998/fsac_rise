@@ -57,12 +57,14 @@ void LineDetector::runAlgorithm() {
         return;
 }
 
+// 采用霍夫变换进行直线拟合
 void LineDetector::createPath() {
     //替换cluster为local_map
 
     if(local_map.cone_red.size() == 0 && local_map.cone_blue.size() == 0 && local_map.cone_yellow.size() == 0)
         return;
     else{
+        // 提取每个红色装桶位置信息的x坐标，储存在x11中。
         for(int i=0; i < local_map.cone_red.size(); i++){
             float x11 = local_map.cone_red[i].position.x ;
         }
@@ -77,6 +79,7 @@ void LineDetector::createPath() {
         }
     }
     
+    // 霍夫变换
     int accumulator[180][201]={0};
     double p,p1,p2,Y_right,Y_left;
     int theta1,theta2;
@@ -133,7 +136,7 @@ void LineDetector::createPath() {
     else
     {
         double check_x=(p1*cos((float)theta2*M_PI/180.0)-p2*cos((float)theta1*M_PI/180.0))/(sin((float)theta1*M_PI/180.0)*cos((float)theta2*M_PI/180.0)-sin((float)theta2*M_PI/180.0)*cos((float)theta1*M_PI/180.0));
-        if ((check_x > 200 || check_x < -200)&&(fabs(p1)<3 && fabs(p2)<3))//直线距离车小鱼于3米
+        if ((check_x > 200 || check_x < -200)&&(fabs(p1)<3 && fabs(p2)<3))//直线距离车小于3米
         {
             getPath=true;
 			std::cout<<"find path"<<std::endl;

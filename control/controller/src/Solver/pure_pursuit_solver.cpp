@@ -23,6 +23,7 @@
 
 namespace ns_control {
     
+// 求解控制命令
 void Pure_Pursuit_Solver::solve() {
     ROS_INFO_STREAM("begin solve");
     if (trajectory_.empty()) {
@@ -37,7 +38,7 @@ void Pure_Pursuit_Solver::solve() {
     const auto i_next = control_param_.look_ahead;
     geometry_msgs::Point32 next_point;
 
-    { // Steering Control
+    { // Steering Control 求解角度信息
         const double beta_est = control_command_.steering_angle.data * 0.5;
         next_point.x                            = trajectory_[i_next].pts.x*std::cos(state_.yaw) 
                                                     - trajectory_[i_next].pts.y*std::sin(state_.yaw);
@@ -50,7 +51,7 @@ void Pure_Pursuit_Solver::solve() {
         control_command_.steering_angle.data    = static_cast<float>(1.5 * std::atan(2.0 / length * std::sin(eta)));
         std::cout<<"steering:  "<<control_command_.steering_angle.data<<std::endl;
     }
-    { // Speed Controller
+    { // Speed Controller 求解速度信息
         const double vel = state_.v;
         control_command_.throttle.data = static_cast<float>(desire_vel - vel);
     }

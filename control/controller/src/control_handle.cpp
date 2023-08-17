@@ -37,6 +37,7 @@ namespace ns_control {
     int ControlHandle::getNodeRate() const { return node_rate_; }
 
 // Methods
+    // 从ROS参数服务器中加载参数并将它们存储在类的私有成员变量中
     void ControlHandle::loadParameters() {
         ROS_INFO("loading handle parameters");
         if (!nodeHandle_.param<std::string>("car_state_topic_name",
@@ -69,6 +70,7 @@ namespace ns_control {
         }
     }
 
+    // 订阅ros话题，参考路径话题、车辆状态话题
     void ControlHandle::subscribeToTopics() {
         ROS_INFO("subscribe to topics");
         refTrajectorySubscriber_ =
@@ -78,16 +80,19 @@ namespace ns_control {
                 nodeHandle_.subscribe(car_state_topic_name_, 10, &ControlHandle::carStateCallback, this);
     }
 
+    // 发布ros话题，控制命令、预处理路径
     void ControlHandle::publishToTopics() {
         ROS_INFO("publish to topics");
         cmdPublisher_ = nodeHandle_.advertise<fsd_common_msgs::ControlCommand>(ctrl_cmd_topic_name_, 1);
         prePathPublisher_ = nodeHandle_.advertise<visualization_msgs::MarkerArray>(predict_path_topic_name_, 1);
     }
 
+    // 处理订阅的车辆状态话题消息
     void ControlHandle::carStateCallback(const fsd_common_msgs::CarState &msg) {
         control_.setCarState(msg);
     }
 
+    // 处理订阅的参考路径话题消息
     void ControlHandle::refTrajCallback(const fsd_common_msgs::Trajectory &msg) {
 
         Trajectory ref_path;
@@ -107,6 +112,7 @@ namespace ns_control {
 
     }
 
+    // 执行程序的主循环
     void ControlHandle::run() {
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
         control_.runAlgorithm();
@@ -116,6 +122,7 @@ namespace ns_control {
         sendMsg();
     }
 
+    // 将计算得到的控制命令和预处理路径发布出去
     void ControlHandle::sendMsg() {
         cmdPublisher_.publish(control_.getCmd());
         prePathPublisher_.publish(control_.getPrePath());

@@ -22,6 +22,13 @@
 
 namespace ns_path_generator {
 
+// 用于在Autox赛道上生成自动驾驶车辆路径的C++函数，找中心点进行路径平滑与生成
+/* 主要方法为：
+首先，检查是否存在蓝色锥桶和红色锥桶，如果没有就返回false。
+接着，函数找到中心线（根据红色锥桶和距离最近的蓝色锥桶的平均值），并使用Spline2D类生成平滑的路径。
+然后，函数根据路径间隔参数，计算每个点的位置、航向角、曲率等信息，并将其存储在TrajectoryPoint结构体中。
+接着，函数根据距离判断，找到距离路径末端最近的点，并将这个点作为起点，生成一条新的路径，并将其存储在Trajectory结构体中。
+最后，函数将新的路径存储在trajectory_变量中，表示自动驾驶车辆需要按照这个路径行驶。*/
 bool Autox_Track::genTraj() {
   if (map_.cone_blue.empty() || map_.cone_red.empty())
     return false;
@@ -94,6 +101,7 @@ bool Autox_Track::genTraj() {
   trajectory_ = tmp;
 }
 
+// 计算自动驾驶车辆沿着给定路径的参考线，并储存
 bool Autox_Track::CalculateTraj(Trajectory &refline) {
 
   if (trajectory_.empty()) {

@@ -45,14 +45,19 @@ def callback(left_image_msg, right_image_msg):
     global global_object_list, global_marker_array
     image_queue_left.put(left_image_msg)
     image_queue_right.put(right_image_msg)
-    
+
 def detection_worker(queue, maps_msg, global_marker_array):
 	while True:
 		# 获取列表中的信息
 		data = queue.get()
-		global bridge,yolo,mot_tracker
+		global bridge,yolo,mot_tracker,detected_img_publisher
 		cv_img = bridge.imgmsg_to_cv2(data,'bgr8')
 		frame = cv2.resize(cv_img,(960,540),interpolation=cv2.INTER_LINEAR)	
+		# 转换为图像消息对象
+		image_msg = bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+		# 将图像消息对象放入队列
+		image_queue_left.put(image_msg)
+		#image_queue_right.put(image_msg)
 		fps = 0.0
 		t1 = time.time()
 		frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
@@ -64,10 +69,17 @@ def detection_worker(queue, maps_msg, global_marker_array):
 
 		frame = np.array(frame)
 		frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
+		x, y, w, h = 0, 0, 0, 0
+		frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
+
 		fps  = ( fps + (1./(time.time()-t1)) ) / 2
 		#print("fps= %.2f"%(fps))
 		# frame = cv2.putText(frame, "fps= %.2f"%(fps), (0, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2) #在图像绘制 fps
 		#发布检测数据
+		# 发布图片信息
+		left_img_msg = image_queue_left.get()
+		rospy.loginfo("Publishing image from left camera...")
+		detected_img_publisher.publish(left_img_msg)
 		maps_msg.header.stamp = rospy.Time.now()
 		maps_msg.header.seq+=1
 		num_all = len(res) #获取锥桶总数
@@ -89,10 +101,8 @@ def detection_worker(queue, maps_msg, global_marker_array):
 				cone_msg.position.y = res[i][1]
 				maps_msg.cone_yellow.append( cone_msg )
 
-
-
 def main():
-	global yolo,mot_tracker,bridge
+	global yolo,mot_tracker,bridge,image_queue_left, image_queue_right, detected_img_publisher
 	bridge = CvBridge()
 	# sort跟踪器
 	mot_tracker = Sort()
@@ -116,39 +126,40 @@ def main():
 	image_subscriber_right = Subscriber(camera_right_topic,Image)
 	ts = TimeSynchronizer([image_subscriber_left, image_subscriber_right], 10)
 	ts.registerCallback(callback)
-    
+
 	# 创建发布者，用于发布检测地图及可视化结果
 	result_pub_ = rospy.Publisher('/local_map', Map, queue_size=10)
 	marker_publisher = rospy.Publisher('/visualization_marker_array', Marker, queue_size=10)
+	detected_img_publisher = rospy.Publisher('/detected_img', Image, queue_size=10)
 
 	# 创建队列和线程
-    # 启动两个线程，分别处理左右相机的检测结果
+	# 启动两个线程，分别处理左右相机的检测结果
 	thread_left = threading.Thread(target=detection_worker, args=(image_queue_left, maps_msg, global_marker_array))
 	thread_right = threading.Thread(target=detection_worker, args=(image_queue_right, maps_msg, global_marker_array))
 	thread_left.start()
 	thread_right.start()
 
-
-     # 循环发布检测结果和可视化信息
+	# 循环发布检测结果和可视化信息
 	rate = rospy.Rate(10) # 10Hz
 	while not rospy.is_shutdown():
-        # 发布全局变量中的检测结果
+		# 发布全局变量中的检测结果
 		maps_msg.header.stamp = rospy.Time.now()
 		result_pub_.publish(maps_msg)
 
-        # 发布全局变量中的可视化信息
+		# 发布全局变量中的可视化信息
 		global_marker_array.header.stamp = rospy.Time.now()
 		marker_publisher.publish(global_marker_array)
 
-        # 清空全局变量中的检测结果和可视化信息，以便下一次循环使用
+		# 清空全局变量中的检测结果和可视化信息，以便下一次循环使用
 		maps_msg.cone_red = []
 		maps_msg.cone_blue = []
 		maps_msg.cone_yellow = []
 		global_marker_array.points = []
+		image_queue_left.queue.clear()
+		#image_queue_right.queue.clear()
 
-        # 休眠一段时间，以控制发布频率
+		# 休眠一段时间，以控制发布频率
 		rate.sleep()
-
 
 if __name__ == '__main__':
     try:

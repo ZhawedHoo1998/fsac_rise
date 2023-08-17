@@ -17,14 +17,14 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include "sensor_msgs/Imu.h"
-
+#include "autoware_msgs/VehicleCmd.h"
 #include <chrono>
 
 #include <bitset> // 包含 bitset 函数
 namespace yhs_tool {
 
 //消息全局变量
-yhs_can_msgs::vehicle_status vehicle_msg;
+// yhs_can_msgs::vehicle_status vehicle_msg;
 sensor_msgs::Imu imu_msgs;
 sensor_msgs::NavSatFix gps_msg;
 int count_imu;
@@ -43,122 +43,11 @@ CanControl::~CanControl()
 }
 
 
-
-//io控制回调函数
-void CanControl::io_cmdCallBack(const yhs_can_msgs::io_cmd msg)
-{
-	static unsigned char count_1 = 0;
-
-	cmd_mutex_.lock();
-
-	memset(sendData_u_io_,0,8);
-
-	sendData_u_io_[0] = msg.io_cmd_enable;
-
-	sendData_u_io_[1] = 0xff;
-	if(msg.io_cmd_upper_beam_headlamp)
-		sendData_u_io_[1] &= 0xff;
-	else sendData_u_io_[1] &= 0xfd;
-
-	if(msg.io_cmd_turn_lamp == 0)
-		sendData_u_io_[1] &= 0xf3;
-	if(msg.io_cmd_turn_lamp == 1)
-		sendData_u_io_[1] &= 0xf7;
-	if(msg.io_cmd_turn_lamp == 2)
-		sendData_u_io_[1] &= 0xfb;
-
-	sendData_u_io_[2] = msg.io_cmd_speaker;
-
-	sendData_u_io_[3] = 0;
-	sendData_u_io_[4] = 0;
-	sendData_u_io_[5] = 0; 
-
-	count_1 ++;
-	if(count_1 == 16)	count_1 = 0;
-
-	sendData_u_io_[6] =  count_1 << 4;
-
-	sendData_u_io_[7] = sendData_u_io_[0] ^ sendData_u_io_[1] ^ sendData_u_io_[2] ^ sendData_u_io_[3] ^ sendData_u_io_[4] ^ sendData_u_io_[5] ^ sendData_u_io_[6];
-
-	send_frames_[0].can_id = 0x98C4D7D0;
-    send_frames_[0].can_dlc = 8;
-
-	memcpy(send_frames_[0].data, sendData_u_io_, 8);
-
-	int ret = write(dev_handler_, &send_frames_[0], sizeof(send_frames_[0]));
-    if (ret <= 0) 
-	{
-      ROS_ERROR("send message failed, io error code: %d",ret);
-    }	
-
-	cmd_mutex_.unlock();
-}
-
-//速度控制回调函数
-void CanControl::ctrl_cmdCallBack(const yhs_can_msgs::ctrl_cmd msg)
-{
-	unsigned short vel = 0; 
-	short angular = msg.ctrl_cmd_steering * 100; //转角计算公式
-	static unsigned char count = 0; //计数器
-
-	cmd_mutex_.lock();
-
-	memset(sendData_u_vel_,0,8);
-
-	if(msg.ctrl_cmd_velocity < 0) vel = 0;
-	else
-	{
-		vel = msg.ctrl_cmd_velocity * 1000;
-	}
-
-	sendData_u_vel_[0] = sendData_u_vel_[0] | (0x0f & msg.ctrl_cmd_gear);
-	
-	sendData_u_vel_[0] = sendData_u_vel_[0] | (0xf0 & ((vel & 0x0f) << 4));
-
-	sendData_u_vel_[1] = (vel >> 4) & 0xff;
-
-	sendData_u_vel_[2] = sendData_u_vel_[2] | (0x0f & (vel >> 12));
-
-	sendData_u_vel_[2] = sendData_u_vel_[2] | (0xf0 & ((angular & 0x0f) << 4));
-
-	sendData_u_vel_[3] = (angular >> 4) & 0xff;
-
-	sendData_u_vel_[4] = sendData_u_vel_[4] | (0xf0 & ((msg.ctrl_cmd_Brake & 0x0f) << 4));
-
-	sendData_u_vel_[4] = sendData_u_vel_[4] | (0x0f & (angular >> 12));
-
-	sendData_u_vel_[5] = 0;
-
-	count ++;
-
-	if(count == 16)	count = 0;
-
-	sendData_u_vel_[6] =  count << 4;
-	
-
-	sendData_u_vel_[7] = sendData_u_vel_[0] ^ sendData_u_vel_[1] ^ sendData_u_vel_[2] ^ sendData_u_vel_[3] ^ sendData_u_vel_[4] ^ sendData_u_vel_[5] ^ sendData_u_vel_[6];
-
-	send_frames_[0].can_id = 0x98C4D2D0;
-    send_frames_[0].can_dlc = 8;
-
-	memcpy(send_frames_[0].data, sendData_u_vel_, 8);
-
-	int ret = write(dev_handler_, &send_frames_[0], sizeof(send_frames_[0]));
-    if (ret <= 0) 
-	{
-      ROS_ERROR("send message failed, cmd error code: %d",ret);
-    }	
-
-	cmd_mutex_.unlock();
-}
-
-
-void CanControl::autoware_ctrl_cmdCallBack(const geometry_msgs::TwistStamped msg)
+void CanControl::autoware_ctrl_cmdCallBack(const autoware_msgs::VehicleCmd& msg)
 {
 	
-	
-	unsigned short vel = 0; 
-	short angular = -(msg.twist.angular.z * 180) / 3.141596 * 100; //转角计算公式
+	unsigned short vel = msg.ctrl_cmd.linear_velocity;
+	short angular = msg.ctrl_cmd.steering_angle; //转角计算公式
 	static unsigned char count = 0; //计数器
 
 	//  档位判断
@@ -186,10 +75,10 @@ void CanControl::autoware_ctrl_cmdCallBack(const geometry_msgs::TwistStamped msg
 
 	memset(sendData_u_vel_,0,8);
 	// ROS_INFO("vel: %d", vel);
-	if( msg.twist.linear.x < 0 ) vel = 0;
+	if( msg.ctrl_cmd.linear_velocity < 0 ) vel = 0;
 	else
 	{
-		vel = msg.twist.linear.x * 1000  ;
+		vel = msg.ctrl_cmd.linear_velocity * 1000  ;
 		// ROS_INFO("vel: %d", vel);
 		// std::count<< vel <<std::endl;
 	}
@@ -266,19 +155,19 @@ void CanControl::recvData()
 						autoware_status_msgs.header.seq++;
 						autoware_status_msgs.header.frame_id = "base_link";
 
-						vehicle_msg.ctrl_fb_gear = 0x0f & recv_frames_[0].data[0];
-						vehicle_msg.ctrl_fb_velocity = (float)((unsigned short)((recv_frames_[0].data[2] & 0x0f) << 12 | recv_frames_[0].data[1] << 4 | (recv_frames_[0].data[0] & 0xf0) >> 4)) / 1000;					
-						autoware_status_msgs.twist.linear.x = vehicle_msg.ctrl_fb_velocity;
+						// vehicle_msg.ctrl_fb_gear = 0x0f & recv_frames_[0].data[0];
+						// vehicle_msg.ctrl_fb_velocity = (float)((unsigned short)((recv_frames_[0].data[2] & 0x0f) << 12 | recv_frames_[0].data[1] << 4 | (recv_frames_[0].data[0] & 0xf0) >> 4)) / 1000;					
+						autoware_status_msgs.twist.linear.x = (float)((unsigned short)((recv_frames_[0].data[2] & 0x0f) << 12 | recv_frames_[0].data[1] << 4 | (recv_frames_[0].data[0] & 0xf0) >> 4)) / 1000;
 						
-						if ( vehicle_msg.ctrl_fb_gear == 2 )
-						{
-							vehicle_msg.ctrl_fb_velocity =vehicle_msg.ctrl_fb_velocity * -1;
-						}
+						// if ( vehicle_msg.ctrl_fb_gear == 2 )
+						// {
+						// 	vehicle_msg.ctrl_fb_velocity =vehicle_msg.ctrl_fb_velocity * -1;
+						// }
 
-						vehicle_msg.ctrl_fb_steering = (float)((short)((recv_frames_[0].data[4] & 0x0f) << 12 | recv_frames_[0].data[3] << 4 | (recv_frames_[0].data[2] & 0xf0) >> 4)) / 100;
-						autoware_status_msgs.twist.angular.z = (vehicle_msg.ctrl_fb_steering) * M_PI / 180;
-						vehicle_msg.ctrl_fb_Brake = (recv_frames_[0].data[4] & 0x30) >> 4;
-						vehicle_msg.ctrl_fb_mode = (recv_frames_[0].data[4] & 0xc0) >> 6;
+						// vehicle_msg.ctrl_fb_steering = (float)((short)((recv_frames_[0].data[4] & 0x0f) << 12 | recv_frames_[0].data[3] << 4 | (recv_frames_[0].data[2] & 0xf0) >> 4)) / 100;
+						autoware_status_msgs.twist.angular.z = ((float)((short)((recv_frames_[0].data[4] & 0x0f) << 12 | recv_frames_[0].data[3] << 4 | (recv_frames_[0].data[2] & 0xf0) >> 4)) / 100) * M_PI / 180;
+						// vehicle_msg.ctrl_fb_Brake = (recv_frames_[0].data[4] & 0x30) >> 4;
+						// vehicle_msg.ctrl_fb_mode = (recv_frames_[0].data[4] & 0xc0) >> 6;
 						unsigned char crc = recv_frames_[0].data[0] ^ recv_frames_[0].data[1] ^ recv_frames_[0].data[2] ^ recv_frames_[0].data[3] ^ recv_frames_[0].data[4] ^ recv_frames_[0].data[5] ^ recv_frames_[0].data[6];
 
 						if(crc != recv_frames_[0].data[7])
@@ -312,9 +201,9 @@ void CanControl::recvData()
 
 					case 0x32A:  //姿态角
 					{
-						vehicle_msg.heading = (int)(( ((recv_frames_[0].data[1] )<< 8)  | recv_frames_[0].data[0] )) * 0.01 ;
-						vehicle_msg.pitch = ((float)((short)(((recv_frames_[0].data[3] )<< 8)  | (recv_frames_[0].data[2]) ))) *0.01 ;
-						vehicle_msg.roll = (float)((short)(((recv_frames_[0].data[5] )<< 8)  | (recv_frames_[0].data[4]) )) *0.01 ;
+						// vehicle_msg.heading = (int)(( ((recv_frames_[0].data[1] )<< 8)  | recv_frames_[0].data[0] )) * 0.01 ;
+						// vehicle_msg.pitch = ((float)((short)(((recv_frames_[0].data[3] )<< 8)  | (recv_frames_[0].data[2]) ))) *0.01 ;
+						// vehicle_msg.roll = (float)((short)(((recv_frames_[0].data[5] )<< 8)  | (recv_frames_[0].data[4]) )) *0.01 ;
 						
 						uint16_t Yaw = ((int)(( ((recv_frames_[0].data[1] )<< 8)  | recv_frames_[0].data[0] ))) * 0.01 ;   //原始信号单位为度
 						float Pitch = (((float)((short)(((recv_frames_[0].data[3] )<< 8)  | (recv_frames_[0].data[2]) ))) *0.01) -0.55  ;
@@ -446,14 +335,14 @@ void CanControl::recvData()
 			count_imu = 0;
 		}
 		
-		if(count_vehicle_status == 4)
-		{
-			vehicle_msg.header.stamp = ros::Time::now();
-			vehicle_msg.header.seq++;
-			vehicle_msg.header.frame_id = "world";
-			vehicle_status_pub_.publish(vehicle_msg);
-			count_vehicle_status = 0;
-		}
+		// if(count_vehicle_status == 4)
+		// {
+		// 	vehicle_msg.header.stamp = ros::Time::now();
+		// 	vehicle_msg.header.seq++;
+		// 	vehicle_msg.header.frame_id = "base_link";
+		// 	vehicle_status_pub_.publish(vehicle_msg);
+		// 	count_vehicle_status = 0;
+		// }
 
 	}
 }
@@ -475,21 +364,18 @@ void CanControl::sendData()
 }
 
 
+
 void CanControl::run()
 {
 
-	//创建订阅对象
-	ctrl_cmd_sub_ = nh_.subscribe<yhs_can_msgs::ctrl_cmd>("ctrl_cmd", 5, &CanControl::ctrl_cmdCallBack, this);
-	io_cmd_sub_ = nh_.subscribe<yhs_can_msgs::io_cmd>("io_cmd", 5, &CanControl::io_cmdCallBack, this);
-
 	//角速度
-	autoware_cmd_sub_ = nh_.subscribe<geometry_msgs::TwistStamped>("twist_raw",10, &CanControl::autoware_ctrl_cmdCallBack, this);
+	autoware_cmd_sub_ = nh_.subscribe("vehicle_cmd",10, &CanControl::autoware_ctrl_cmdCallBack, this);
 	
 
 	//创建发布者对象
 	GPS_pub_ =nh_.advertise<sensor_msgs::NavSatFix>("GPS",5);
 
-	vehicle_status_pub_=nh_.advertise<yhs_can_msgs::vehicle_status>("Vehicle_status",5);
+	// vehicle_status_pub_=nh_.advertise<yhs_can_msgs::vehicle_status>("Vehicle_status",5);
 	autoware_status_pub_=nh_.advertise<geometry_msgs::TwistStamped>("autoware_vehicle_status",5);
 	IMU_pub_ = nh_.advertise<sensor_msgs::Imu>("IMU",5);  //发布IMU信息
 
@@ -530,7 +416,6 @@ void CanControl::run()
 
 	//创建接收发送数据线程
 	boost::thread recvdata_thread(boost::bind(&CanControl::recvData, this));
-//	boost::thread senddata_thread(boost::bind(&CanControl::sendData, this));
 	ROS_INFO("receive !");
 	ros::spin();
 	close(dev_handler_);
