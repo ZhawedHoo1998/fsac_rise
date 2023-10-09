@@ -24,7 +24,7 @@
 namespace yhs_tool {
 
 //消息全局变量
-// yhs_can_msgs::vehicle_status vehicle_msg;
+yhs_can_msgs::vehicle_status vehicle_msg;
 sensor_msgs::Imu imu_msgs;
 sensor_msgs::NavSatFix gps_msg;
 int count_imu;
@@ -155,19 +155,19 @@ void CanControl::recvData()
 						autoware_status_msgs.header.seq++;
 						autoware_status_msgs.header.frame_id = "base_link";
 
-						// vehicle_msg.ctrl_fb_gear = 0x0f & recv_frames_[0].data[0];
-						// vehicle_msg.ctrl_fb_velocity = (float)((unsigned short)((recv_frames_[0].data[2] & 0x0f) << 12 | recv_frames_[0].data[1] << 4 | (recv_frames_[0].data[0] & 0xf0) >> 4)) / 1000;					
+						vehicle_msg.ctrl_fb_gear = 0x0f & recv_frames_[0].data[0];
+						vehicle_msg.ctrl_fb_velocity = (float)((unsigned short)((recv_frames_[0].data[2] & 0x0f) << 12 | recv_frames_[0].data[1] << 4 | (recv_frames_[0].data[0] & 0xf0) >> 4)) / 1000;					
 						autoware_status_msgs.twist.linear.x = (float)((unsigned short)((recv_frames_[0].data[2] & 0x0f) << 12 | recv_frames_[0].data[1] << 4 | (recv_frames_[0].data[0] & 0xf0) >> 4)) / 1000;
 						
-						// if ( vehicle_msg.ctrl_fb_gear == 2 )
-						// {
-						// 	vehicle_msg.ctrl_fb_velocity =vehicle_msg.ctrl_fb_velocity * -1;
-						// }
+						if ( vehicle_msg.ctrl_fb_gear == 2 )
+						{
+							vehicle_msg.ctrl_fb_velocity =vehicle_msg.ctrl_fb_velocity * -1;
+						}
 
-						// vehicle_msg.ctrl_fb_steering = (float)((short)((recv_frames_[0].data[4] & 0x0f) << 12 | recv_frames_[0].data[3] << 4 | (recv_frames_[0].data[2] & 0xf0) >> 4)) / 100;
+						vehicle_msg.ctrl_fb_steering = (float)((short)((recv_frames_[0].data[4] & 0x0f) << 12 | recv_frames_[0].data[3] << 4 | (recv_frames_[0].data[2] & 0xf0) >> 4)) / 100;
 						autoware_status_msgs.twist.angular.z = ((float)((short)((recv_frames_[0].data[4] & 0x0f) << 12 | recv_frames_[0].data[3] << 4 | (recv_frames_[0].data[2] & 0xf0) >> 4)) / 100) * M_PI / 180;
-						// vehicle_msg.ctrl_fb_Brake = (recv_frames_[0].data[4] & 0x30) >> 4;
-						// vehicle_msg.ctrl_fb_mode = (recv_frames_[0].data[4] & 0xc0) >> 6;
+						vehicle_msg.ctrl_fb_Brake = (recv_frames_[0].data[4] & 0x30) >> 4;
+						vehicle_msg.ctrl_fb_mode = (recv_frames_[0].data[4] & 0xc0) >> 6;
 						unsigned char crc = recv_frames_[0].data[0] ^ recv_frames_[0].data[1] ^ recv_frames_[0].data[2] ^ recv_frames_[0].data[3] ^ recv_frames_[0].data[4] ^ recv_frames_[0].data[5] ^ recv_frames_[0].data[6];
 
 						if(crc != recv_frames_[0].data[7])
@@ -335,14 +335,14 @@ void CanControl::recvData()
 			count_imu = 0;
 		}
 		
-		// if(count_vehicle_status == 4)
-		// {
-		// 	vehicle_msg.header.stamp = ros::Time::now();
-		// 	vehicle_msg.header.seq++;
-		// 	vehicle_msg.header.frame_id = "base_link";
-		// 	vehicle_status_pub_.publish(vehicle_msg);
-		// 	count_vehicle_status = 0;
-		// }
+		if(count_vehicle_status == 4)
+		{
+			vehicle_msg.header.stamp = ros::Time::now();
+			vehicle_msg.header.seq++;
+			vehicle_msg.header.frame_id = "base_link";
+			vehicle_status_pub_.publish(vehicle_msg);
+			count_vehicle_status = 0;
+		}
 
 	}
 }
@@ -375,7 +375,7 @@ void CanControl::run()
 	//创建发布者对象
 	GPS_pub_ =nh_.advertise<sensor_msgs::NavSatFix>("GPS",5);
 
-	// vehicle_status_pub_=nh_.advertise<yhs_can_msgs::vehicle_status>("Vehicle_status",5);
+	vehicle_status_pub_=nh_.advertise<yhs_can_msgs::vehicle_status>("Vehicle_status",5);
 	autoware_status_pub_=nh_.advertise<geometry_msgs::TwistStamped>("autoware_vehicle_status",5);
 	IMU_pub_ = nh_.advertise<sensor_msgs::Imu>("IMU",5);  //发布IMU信息
 

@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
-  # yhs_can_msgs
+  yhs_can_msgs
   sensor_msgs
   tf2
   tf2_ros

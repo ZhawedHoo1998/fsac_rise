@@ -10,16 +10,16 @@
 #include "nav_msgs/Odometry.h"
 #include "sensor_msgs/Imu.h"
 #include "geometry_msgs/Twist.h"
-// #include "yhs_can_msgs/ctrl_cmd.h"
-// #include "yhs_can_msgs/io_cmd.h"
-// #include "yhs_can_msgs/ctrl_fb.h"
-// #include "yhs_can_msgs/lr_wheel_fb.h"
-// #include "yhs_can_msgs/rr_wheel_fb.h"
-// #include "yhs_can_msgs/io_fb.h"
-// #include "yhs_can_msgs/odo_fb.h"
+#include "yhs_can_msgs/ctrl_cmd.h"
+#include "yhs_can_msgs/io_cmd.h"
+#include "yhs_can_msgs/ctrl_fb.h"
+#include "yhs_can_msgs/lr_wheel_fb.h"
+#include "yhs_can_msgs/rr_wheel_fb.h"
+#include "yhs_can_msgs/io_fb.h"
+#include "yhs_can_msgs/odo_fb.h"
 
 
-// #include "yhs_can_msgs/vehicle_status.h" //111
+#include "yhs_can_msgs/vehicle_status.h" //111
 #include "sensor_msgs/NavSatFix.h"
 
 #include <net/if.h>
@@ -53,7 +53,7 @@ private:
 	//publishing IMU gps vehicle_status
 
 
-	// ros::Publisher vehicle_status_pub_;
+	ros::Publisher vehicle_status_pub_;
 	ros::Publisher autoware_status_pub_;
 	ros::Publisher IMU_pub_;
 	ros::Publisher GPS_pub_;
